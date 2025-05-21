@@ -70,7 +70,48 @@ The deployment architecture consists of:
 5. Configure instance details:
    - Network: Same VPC as RDS
    - Auto-assign Public IP: Enable
-   - IAM role: Create a role with permissions for EC2, RDS, and other required services
+   - IAM role: Create a role with the following steps:
+     1. Open the IAM console in a new tab (https://console.aws.amazon.com/iam/)
+     2. Navigate to "Roles" and click "Create role"
+     3. Select "AWS service" as the trusted entity type
+     4. Choose "EC2" as the service that will use this role
+     5. Click "Next: Permissions"
+     6. Search for and attach the following policies:
+        - `AmazonRDSFullAccess` (for database operations)
+        - `AmazonEC2ContainerRegistryFullAccess` (for Docker operations)
+        - `AmazonS3ReadOnlyAccess` (if you plan to use S3 for assets)
+        - `CloudWatchAgentServerPolicy` (for monitoring)
+     7. Optionally, create a custom policy with more restrictive permissions:
+        ```json
+        {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "rds:DescribeDBInstances",
+                "rds:DescribeDBClusters",
+                "rds:DescribeDBClusterEndpoints"
+              ],
+              "Resource": "*"
+            },
+            {
+              "Effect": "Allow",
+              "Action": [
+                "secretsmanager:GetSecretValue"
+              ],
+              "Resource": "arn:aws:secretsmanager:*:*:secret:cp-reddy-*"
+            }
+          ]
+        }
+        ```
+     8. Click "Next: Tags" and add any relevant tags (e.g., Key: Project, Value: CP-Reddy)
+     9. Click "Next: Review"
+     10. Enter a role name (e.g., `cp-reddy-ec2-role`)
+     11. Add a description (e.g., "Role for CP Reddy IT Solutions EC2 instances")
+     12. Review the permissions and click "Create role"
+     13. Return to the EC2 launch wizard and refresh the IAM role list
+     14. Select the newly created role (`cp-reddy-ec2-role`)
 6. Add storage (at least 20 GB)
 7. Add tags (Key: Name, Value: cp-reddy-app-server)
 8. Configure security group:
