@@ -16,6 +16,11 @@ pipeline {
             steps {
                 withSonarQubeEnv('SonarQube') {
                     sh 'echo "htmlhint"'
+                    sh '''
+                         npm install -g htmlhint
+                         htmlhint index.html
+                        '''
+
                 }
             }
         }
