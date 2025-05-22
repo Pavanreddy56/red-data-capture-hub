@@ -1,4 +1,3 @@
-
 pipeline {
     agent any
 
@@ -30,20 +29,23 @@ pipeline {
         stage('Deploy App') {
             steps {
                 sh '''
-                docker rm -f html-css-container || true
-                docker run -d --name html-css-container -p 80:80 html-css-app
+                    docker rm -f html-css-container || true
+                    docker run -d --name html-css-container -p 80:80 html-css-app
                 '''
             }
         }
+
         stage('Push Image') {
             steps {
-        withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-            sh '''
-                docker login -u $USERNAME -p $PASSWORD
-                docker tag html-css-app yourdockerhub/html-css-app:latest
-                docker push yourdockerhub/html-css-app:latest
-            '''
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                    sh '''
+                        docker login -u $USERNAME -p $PASSWORD
+                        docker tag html-css-app $USERNAME/html-css-app:latest
+                        docker push $USERNAME/html-css-app:latest
+                    '''
+                }
+            }
         }
-    }
-}
- 
+    } // 👈 Closing `stages`
+} // 👈 Closing `pipeline`
+
