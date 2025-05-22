@@ -1,86 +1,49 @@
 
 pipeline {
     agent any
-    
+
     environment {
-        DOCKER_IMAGE = 'cpreddy/webapp'
-        DOCKER_TAG = "${env.BRANCH_NAME}-${env.BUILD_NUMBER}"
+        SONARQUBE = 'SonarQube'  // name in Jenkins global config
     }
-    
+
     stages {
-        stage('Checkout') {
+        stage('Clone Code') {
             steps {
-                checkout scm
+                git 'https://github.com/Pavanreddy56/red-data-capture-hub.git'
             }
         }
-        
-        stage('Build') {
+
+        stage('SonarQube Analysis') {
             steps {
-                sh 'npm ci'
-                sh 'npm run build'
-            }
-        }
-        
-        stage('Test') {
-            steps {
-                sh 'npm test || true'  // Continue even if tests fail for now
-            }
-        }
-        
-        stage('Docker Build') {
-            steps {
-                sh "docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} ."
-                sh "docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_IMAGE}:latest"
-            }
-        }
-        
-        stage('Docker Push') {
-            when {
-                branch 'main'  // Only push to Docker registry from main branch
-            }
-            steps {
-                withCredentials([string(credentialsId: 'docker-hub-password', variable: 'DOCKER_HUB_PASSWORD')]) {
-                    sh "docker login -u cpreddy -p ${DOCKER_HUB_PASSWORD}"
-                    sh "docker push ${DOCKER_IMAGE}:${DOCKER_TAG}"
-                    sh "docker push ${DOCKER_IMAGE}:latest"
+                withSonarQubeEnv('SonarQube') {
+                    sh 'echo "htmlhint"'
                 }
             }
         }
-        
-        stage('Deploy to EC2') {
-            when {
-                branch 'main'  // Only deploy from main branch
-            }
+
+        stage('Build Docker Image') {
             steps {
-                sshagent(['ec2-ssh-key']) {
-                    sh """
-                        ssh -o StrictHostKeyChecking=no ec2-user@\${EC2_HOST} '
-                        docker pull ${DOCKER_IMAGE}:latest
-                        docker stop webapp || true
-                        docker rm webapp || true
-                        docker run -d --name webapp \\
-                            -p 80:80 \\
-                            -e RDS_ENDPOINT=\${RDS_ENDPOINT} \\
-                            -e RDS_DATABASE=\${RDS_DATABASE} \\
-                            -e RDS_USERNAME=\${RDS_USERNAME} \\
-                            -e RDS_PASSWORD=\${RDS_PASSWORD} \\
-                            ${DOCKER_IMAGE}:latest
-                        '
-                    """
-                }
+                sh 'docker build -t html-css-app .'
             }
         }
-    }
-    
-    post {
-        always {
-            cleanWs()  // Clean workspace after build
+
+        stage('Deploy App') {
+            steps {
+                sh '''
+                docker rm -f html-css-container || true
+                docker run -d --name html-css-container -p 80:80 html-css-app
+                '''
+            }
         }
-        success {
-            echo 'Build and deployment successful!'
-        }
-        failure {
-            echo 'Build or deployment failed!'
+        stage('Push Image') {
+            steps {
+        withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+            sh '''
+                docker login -u $USERNAME -p $PASSWORD
+                docker tag html-css-app yourdockerhub/html-css-app:latest
+                docker push yourdockerhub/html-css-app:latest
+            '''
         }
     }
 }
+ 
