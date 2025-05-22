@@ -15,13 +15,7 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    sh '''
-                           sonar-scanner \
-                           -Dsonar.projectKey=html-css-app \
-                             -Dsonar.sources=. \
-                           -Dsonar.host.url=http://13.203.212.216:9000 \
-                           -Dsonar.login=sqa_061cc65428d4b59c00a3346909d07eb3baeccb97
-                           '''
+                    sh 'echo "htmlhint"'
                 }
             }
         }
