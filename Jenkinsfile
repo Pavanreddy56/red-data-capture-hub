@@ -9,7 +9,6 @@ pipeline {
         stage('Clone Code') {
             steps {
                 git branch: 'main', url: 'https://github.com/Pavanreddy56/red-data-capture-hub.git'
-
             }
         }
 
@@ -47,6 +46,5 @@ pipeline {
                 }
             }
         }
-    } // 👈 Closing `stages`
-} // 👈 Closing `pipeline`
-
+    } // 👈 Correctly closed "stages"
+} // 👈 Correctly closed "pipeline"
