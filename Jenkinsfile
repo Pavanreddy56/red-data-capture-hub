@@ -8,7 +8,8 @@ pipeline {
     stages {
         stage('Clone Code') {
             steps {
-                git 'https://github.com/Pavanreddy56/red-data-capture-hub.git'
+                git branch: 'main', url: 'https://github.com/Pavanreddy56/red-data-capture-hub.git'
+
             }
         }
 
