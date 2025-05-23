@@ -9,11 +9,7 @@ pipeline {
         RDS_USERNAME = credentials('database')
         RDS_PASSWORD = credentials('Pavanreddy56')
         SONARQUBE_SERVER = 'SonarQube'  // Name of SonarQube server in Jenkins Global Tool Configuration
-        sonar-scanner \
-        -Dsonar.projectKey=jenkinspipeline \
-        -Dsonar.sources=. \
-        -Dsonar.host.url=http://3.110.207.144:9000 \
-        -Dsonar.login=1
+        
     }
     
     stages {
@@ -25,7 +21,7 @@ pipeline {
 
         stage('Code Analysis - SonarQube') {
             steps {
-                withSonarQubeEnv("${SONARQUBE_SERVER}") {
+                withSonarQubeEnv("${SonarQube}") {
                     sh "sonar-scanner -Dsonar.projectKey=webapp -Dsonar.sources=. -Dsonar.host.url=$http://3.110.207.144:9000/ -Dsonar.login=$squ_6c7d509b72b17f9223cfe498cadb553a1c096d00"
                 }
             }
