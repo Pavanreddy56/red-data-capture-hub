@@ -2,7 +2,7 @@ pipeline {
     agent any
     tools { 
         jdk 'jdk17'
-        nodejs 'node16'
+        nodejs 'node18'
     }
     environment {
         SCANNER_HOME = tool 'Sonar-Scanner'
@@ -45,13 +45,14 @@ pipeline {
                 }
             }
         }
-
         stage('Install Dependencies') {
-            steps {
-                sh "npm install"
+             steps {
+                  sh '''
+                      rm -rf node_modules package-lock.json
+                       npm install
+                        '''
             }
         }
-
         stage('TRIVY FS SCAN') {
             steps {
                 sh "trivy fs . > trivyfs.txt"
