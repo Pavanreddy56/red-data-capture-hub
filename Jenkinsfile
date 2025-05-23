@@ -19,6 +19,37 @@ pipeline {
                 cleanWs()
             }
         } 
-      }
-    } 
-
+    }
+    stage('Checkout from Git') {
+            steps {
+                git branch: 'main', url: 'https://github.com/Pavanreddy56/red-data-capture-hub'
+            }
+    }
+    stage("Sonarqube Analysis") {
+            steps {
+                withSonarQubeEnv('SonarQube-server') {
+                    sh '''$SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=red-data-capture-hub \
+                    -Dsonar.projectKey=red-data-capture-hub'''
+                }
+            }
+    }
+    stage("Quality Gate") {
+            steps {
+                script {
+                    waitForQualityGate abortPipeline: false, credentialsId: 'Sonarqube-token'
+                }
+            }
+    }
+    stage('Install Dependencies') {
+            steps {
+                sh "npm install"
+            }
+    }
+    stage('TRIVY FS SCAN') {
+            steps {
+                sh "trivy fs . > trivyfs.txt"
+             }
+    }
+   
+} 
+    
