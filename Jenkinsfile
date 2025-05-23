@@ -5,11 +5,11 @@ pipeline {
         nodejs 'node18'
     }
     environment {
-        SCANNER_HOME = tool 'Sonar-Scanner'
+        SCANNER_HOME = tool 'sonar-scanner'
         APP_NAME = "red-data-capture-hub"
         RELEASE = "1.0.0"
         DOCKER_USER = "pavanreddych"
-        DOCKER_PASS = 'DOCKER-HUB'
+        DOCKER_PASS = 'docker-token'
         IMAGE_NAME = "${DOCKER_USER}/${APP_NAME}"
         IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
     }
@@ -41,7 +41,7 @@ pipeline {
         stage("Quality Gate") {
             steps {
                 script {
-                    waitForQualityGate abortPipeline: false, credentialsId: 'Sonarqube-token'
+                    waitForQualityGate abortPipeline: false, credentialsId: 'sonarqube-token'
                 }
             }
         }
