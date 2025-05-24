@@ -9,7 +9,7 @@ pipeline {
         APP_NAME = "red-data-capture-hub"
         RELEASE = "1.0.0"
         DOCKER_USER = "pavanreddych"
-        DOCKER_PASS = 'docker-token'
+        DOCKER_PASS = 'docker'
         IMAGE_NAME = "${DOCKER_USER}/${APP_NAME}"
         IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
     }
@@ -28,7 +28,7 @@ pipeline {
 
         stage("Sonarqube Analysis") {
             steps {
-                withSonarQubeEnv('SonarQube-server') {
+                withSonarQubeEnv('sonarqube') {
                     sh '''
                     $SCANNER_HOME/bin/sonar-scanner \
                     -Dsonar.projectName=red-data-capture-hub \
