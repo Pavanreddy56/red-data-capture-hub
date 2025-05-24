@@ -5,7 +5,7 @@ pipeline {
         nodejs 'node18'
     }
     environment {
-        SCANNER_HOME = tool 'sonar-scanner'
+        SCANNER_HOME = tool 'sonsr-scanner'
         APP_NAME = "red-data-capture-hub"
         RELEASE = "1.0.0"
         DOCKER_USER = "pavanreddych"
