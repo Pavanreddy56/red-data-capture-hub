@@ -45,21 +45,21 @@ pipeline {
                 }
             }
         }
+
         stage('Install Dependencies') {
-             steps {
-                  sh '''
-                      rm -rf node_modules package-lock.json
-                       npm install
-                        '''
+            steps {
+                sh '''
+                rm -rf node_modules package-lock.json
+                npm install
+                '''
             }
         }
-        stages {
-              stage('Scan with Trivy') {
-                  steps {
-                        sh '''
-                        docker run --rm -v "${WORKSPACE}:/app" aquasec/trivy fs /app
-                        '''
-                }
+
+        stage('Scan with Trivy') {
+            steps {
+                sh """
+                docker run --rm -v "${WORKSPACE}:/app" aquasec/trivy fs /app
+                """
             }
         }
     }
