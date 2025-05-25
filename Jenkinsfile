@@ -9,9 +9,8 @@ pipeline {
         APP_NAME = "red-data-capture-hub"
         RELEASE = "1.0.0"
         DOCKER_USER = "pavanreddych"
-        DOCKER_PASS = 'docker'
+        DOCKER_CREDENTIALS_ID = 'dockerhub' // This should be the Jenkins credential ID
         IMAGE_NAME = "${DOCKER_USER}/${APP_NAME}"
-        IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
     }
     stages {
         stage('Clean Workspace') {
@@ -37,20 +36,20 @@ pipeline {
 
         stage('Scan with Trivy') {
             steps {
-                sh """
-                docker run --rm -v "${WORKSPACE}:/app" aquasec/trivy fs /app
-                """
+                sh '''
+                docker run --rm -v "$WORKSPACE:/app" aquasec/trivy fs /app
+                '''
             }
         }
+
         stage("Build & Push Docker Image") {
-             steps {
-                 script {
-                     docker.withRegistry('',DOCKER_PASS) {
-                         docker_image = docker.build "${IMAGE_NAME}"
-                     }
-                     docker.withRegistry('',DOCKER_PASS) {
-                         docker_image.push("${IMAGE_TAG}")
-                         docker_image.push('latest')
+            steps {
+                script {
+                    def imageTag = "${RELEASE}-${env.BUILD_NUMBER}"
+                    def dockerImage = docker.build("${IMAGE_NAME}:${imageTag}")
+                    docker.withRegistry('', DOCKER_CREDENTIALS_ID) {
+                        dockerImage.push()
+                        dockerImage.push('latest')
                     }
                 }
             }
