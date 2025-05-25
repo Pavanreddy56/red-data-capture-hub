@@ -1,9 +1,11 @@
 pipeline {
     agent any
+
     tools { 
         jdk 'jdk17'
         nodejs 'node18'
     }
+
     environment {
         SCANNER_HOME = tool 'SonarScanner'
         APP_NAME = "red-data-capture-hub"
@@ -12,6 +14,7 @@ pipeline {
         DOCKER_CREDENTIALS_ID = 'dockerhub'
         IMAGE_NAME = "${DOCKER_USER}/${APP_NAME}"
     }
+
     stages {
         stage('Clean Workspace') {
             steps {
@@ -69,6 +72,12 @@ pipeline {
                     }
                 }
             }
+        }
+    }
+
+    post {
+        always {
+            cleanWs()
         }
     }
 }
