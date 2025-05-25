@@ -30,7 +30,7 @@ pipeline {
 
         stage("Sonarqube Analysis") {
             steps {
-                withSonarQubeEnv('MySonarQube') {
+                withSonarQubeEnv('SonarQube') {
                     sh '''
                     $SCANNER_HOME/bin/sonar-scanner \
                     -Dsonar.projectKey=red-data-capture-hub \
