@@ -9,7 +9,7 @@ pipeline {
         APP_NAME = "red-data-capture-hub"
         RELEASE = "1.0.0"
         DOCKER_USER = "pavanreddych"
-        DOCKER_CREDENTIALS_ID = 'dockerhub' // This should be the Jenkins credential ID
+        DOCKER_CREDENTIALS_ID = 'dockerhub'
         IMAGE_NAME = "${DOCKER_USER}/${APP_NAME}"
     }
     stages {
@@ -24,13 +24,14 @@ pipeline {
                 git branch: 'main', url: 'https://github.com/Pavanreddy56/red-data-capture-hub'
             }
         }
+
         stage("Sonarqube Analysis") {
             steps {
-                withSonarQubeEnv('SonarScanner') {
+                withSonarQubeEnv('MySonarQube') { // <--- This should be your SonarQube SERVER name
                     sh '''
                     $SCANNER_HOME/bin/sonar-scanner \
-                    -Dsonar.projectName=red-data-capture-hub \
-                    -Dsonar.projectKey=red-data-capture-hub
+                    -Dsonar.projectKey=red-data-capture-hub \
+                    -Dsonar.projectName=red-data-capture-hub
                     '''
                 }
             }
