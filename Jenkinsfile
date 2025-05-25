@@ -24,6 +24,17 @@ pipeline {
                 git branch: 'main', url: 'https://github.com/Pavanreddy56/red-data-capture-hub'
             }
         }
+        stage("Sonarqube Analysis") {
+            steps {
+                withSonarQubeEnv('SonarScanner') {
+                    sh '''
+                    $SCANNER_HOME/bin/sonar-scanner \
+                    -Dsonar.projectName=red-data-capture-hub \
+                    -Dsonar.projectKey=red-data-capture-hub
+                    '''
+                }
+            }
+        }
 
         stage('Install Dependencies') {
             steps {
