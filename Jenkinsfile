@@ -27,7 +27,7 @@ pipeline {
 
         stage("Sonarqube Analysis") {
             steps {
-                withSonarQubeEnv('MySonarQube') { // <--- This should be your SonarQube SERVER name
+                withSonarQubeEnv('MySonarQube') {
                     sh '''
                     $SCANNER_HOME/bin/sonar-scanner \
                     -Dsonar.projectKey=red-data-capture-hub \
@@ -49,7 +49,11 @@ pipeline {
         stage('Scan with Trivy') {
             steps {
                 sh '''
-                docker run --rm -v "$WORKSPACE:/app" aquasec/trivy fs /app
+                mkdir -p .trivy-cache
+                docker run --rm \
+                    -v "$WORKSPACE:/app" \
+                    -v "$WORKSPACE/.trivy-cache:/root/.cache/" \
+                    aquasec/trivy fs /app
                 '''
             }
         }
