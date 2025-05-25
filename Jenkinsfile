@@ -49,7 +49,7 @@ pipeline {
             }
         }
 
-        stage('Scan with Trivy') {
+        stage('Scan with Trivy (Filesystem)') {
             steps {
                 sh '''
                 mkdir -p .trivy-cache
@@ -73,6 +73,22 @@ pipeline {
                 }
             }
         }
+
+        stage("Trivy Image Scan") {
+            steps {
+                script {
+                    sh '''
+                    docker run \
+                        -v /var/run/docker.sock:/var/run/docker.sock \
+                        aquasec/trivy image pavanreddych/red-data-capture-hub:latest \
+                        --no-progress --scanners vuln \
+                        --exit-code 0 \
+                        --severity HIGH,CRITICAL \
+                        --format table > trivyimage.txt
+                    '''
+                }
+            }
+        }
     }
 
     post {
@@ -89,4 +105,3 @@ pipeline {
         }
     }
 }
-
